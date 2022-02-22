@@ -47,5 +47,11 @@ func main(){
 
    // conectar com esses clientes
 
-   // os dados das flags para esses clientes
+   // enviar os dados das flags para esses clientes
+
+   // esperar os resultados da execução
+
+   // tratar os resultados
+
+   // gerar uma saída com os resultados
 }
