@@ -1,10 +1,14 @@
-// main()
+import (
+	"fmt"
+	"log"
+	"time"
+	"strconv"
+)
 
-// receber paramentros via terminar(como no mqtt-lantency anterior)
-
-// chamar funções do connection.go
-
-// gerar tratar resultados do teste
+import (
+	"github.com/GaryBoone/GoStats/stats"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
+)
 
 
 func main(){
@@ -27,31 +31,27 @@ func main(){
 	)
 
 	flag.Parse()
-   if *clients < 1 {
-       log.Fatal("Invalid arguments")
-   }
- 
-   if *fin && *fout {
-       log.Fatal("Invalid arguments")
-   }
+    ka, _ := time.ParseDuration(strconv.Itoa(*keepalive) + "s")
 
-   pub_clients := *clients
-   sub_clients := *clients
-   if *fin{
-       sub_clients = 1
-   } else if *fout{
-       pub_clients = 1
-   }
+    opts := mqtt.NewClientOptions().AddBroker(*broker).SetAutoReconnect(true).SetKeepAlive(ka).SetDefaultPublishHandler(func(client mqtt.Client, msg mqtt.Message) {
+        // ler mensagem e achar canal de envio de comandos e canal de recebimento de resultados
+    }).SetConnectionLostHandler(func(client mqtt.Client, reason error) {
+        log.Printf("SUBSCRIBER Orquestrador lost connection to the broker: %v. Will reconnect...\n", reason.Error())
+    })
 
-   // checar clientes que desejam fazer conexão
+    client := mqtt.NewClient(opts)
 
-   // conectar com esses clientes
+    if token := client.Connect(); token.Wait() && token.Error() != nil {
+		log.Printf("SUBSCRIBER Orquestrador had error connecting to the broker: %v\n", token.Error())
+        // exit
+	}
 
-   // enviar os dados das flags para esses clientes
+	if token := client.Subscribe("status_clients", byte(1), nil); token.Wait() && token.Error() != nil {
+		log.Printf("SUBSCRIBER Orquestrador had error subscribe with topic: %v\n", token.Error())
+		// exit
+	}
 
-   // esperar os resultados da execução
+    // enviar commandos aos cliente encontrados
+    // esperar respostas e calcular resultados
 
-   // tratar os resultados
-
-   // gerar uma saída com os resultados
 }
