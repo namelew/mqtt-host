@@ -17,7 +17,8 @@ func main(){
 	extInput := filepath.Ext(*path)
 
 	if (extInput == '.config'){
-		file, _ := os.Open(*path)	
+		file, _ := os.Open(*path)
+		file.Close()	
 	}else{
 		fmt.print("Erro ao abrir arquivo")
 	}
