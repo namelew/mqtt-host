@@ -13,6 +13,8 @@ import (
 
 
 func main(){
+	// ler arquivo de configurações
+
 	var (
 		broker    = flag.String("broker", "tcp://localhost:1883", "MQTT broker endpoint as scheme://host:port")
 		topic     = flag.String("topic", "/test", "MQTT topic for outgoing messages")
