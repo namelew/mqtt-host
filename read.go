@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"io/ioutil"
 	"path/filepath"
 	"flag"
 )
@@ -17,9 +17,8 @@ func main(){
 	extInput := filepath.Ext(*path)
 
 	if (extInput == ".config"){
-		file, _ := os.Open(*path)
-		fmt.Print(file)
-		file.Close()	
+		content, _ := ioutil.ReadFile(*path)
+		fmt.Print(string(content))	
 	}else{
 		fmt.Print("Erro ao abrir arquivo")
 	}
