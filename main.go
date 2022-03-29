@@ -1,13 +1,20 @@
-// main()
+import (
+	"fmt"
+	"log"
+	"time"
+	"strconv"
+	"os"
+)
 
-// receber paramentros via terminar(como no mqtt-lantency anterior)
-
-// chamar funções do connection.go
-
-// gerar tratar resultados do teste
+import (
+	"github.com/GaryBoone/GoStats/stats"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
+)
 
 
 func main(){
+	// ler arquivo de configurações
+
 	var (
 		broker    = flag.String("broker", "tcp://localhost:1883", "MQTT broker endpoint as scheme://host:port")
 		topic     = flag.String("topic", "/test", "MQTT topic for outgoing messages")
@@ -24,34 +31,56 @@ func main(){
 		format    = flag.String("format", "text", "Output format: text|json")
 		quiet     = flag.Bool("quiet", false, "Suppress logs while running")
 		frequency = flag.Int("frequency", 1, "Number of publications per second")
+		benckmark = flag.Int("benckmark", 1, "Selected benckmark software:\n 1 - Soft 1\n 2 - Soft 2")
 	)
 
 	flag.Parse()
-   if *clients < 1 {
-       log.Fatal("Invalid arguments")
-   }
- 
-   if *fin && *fout {
-       log.Fatal("Invalid arguments")
-   }
 
-   pub_clients := *clients
-   sub_clients := *clients
-   if *fin{
-       sub_clients = 1
-   } else if *fout{
-       pub_clients = 1
-   }
+	commands := []string {
+		*broker,
+		*topic,
+		string(*fin),
+		string(*fout),
+		*username,
+		*password,
+		string(*pubqos),
+		string(*subqos),
+		string(*size),
+		string(*count),
+		string(*clients),
+		string(*keepalive),
+		*format,
+		string(*quiet),
+		string(*frequency),
+		string(*benckmark)
+	}
 
-   // checar clientes que desejam fazer conexão
+    opts := mqtt.NewClientOptions().AddBroker(*broker).SetAutoReconnect(true).SetKeepAlive(ka).SetDefaultPublishHandler(func(client mqtt.Client, msg mqtt.Message) {
+    }).SetConnectionLostHandler(func(client mqtt.Client, reason error) {
+        log.Printf("SUBSCRIBER Orquestrador lost connection to the broker: %v. Will reconnect...\n", reason.Error())
+    })
 
-   // conectar com esses clientes
+    client := mqtt.NewClient(opts)
 
-   // enviar os dados das flags para esses clientes
+    if token := client.Connect(); token.Wait() && token.Error() != nil {
+		log.Printf("SUBSCRIBER Orquestrador had error connecting to the broker: %v\n", token.Error())
+        os.Exit(3)
+	}
 
-   // esperar os resultados da execução
+	token := client.Subscribe("status_clients", byte(1), func(Client client, Message m) {
+		// [0:8] command, [8:16] result 
+		message := string(m.Payload())
+		commad_channel := message[0:8]
+		resul_channel := message[8:16]
 
-   // tratar os resultados
+		var command_message := strings.Join(commands," ")
 
-   // gerar uma saída com os resultados
+		// enviar comando
+		client.Publish(commad_channel, byte(1), true, command_message)
+		// se inscrever no canal que o cliente enviou
+		client.Subscribe(resul_channel, byte(1), func(Client client, Message m){
+			result := string(m.Payload())
+			// adicionar em uma estrutura de resultados
+		})
+	}) // ver se eh isso mesmo
 }
