@@ -42,11 +42,13 @@ func main(){
 				i -= 1 
 			}
 		}
-		
+
 		commands := strings.Join(data," ")
 	}else{
 		fmt.Print("Erro ao abrir arquivo")
 	}
+
+	// tratar oq_commands
 
     opts := mqtt.NewClientOptions().AddBroker(*broker).SetAutoReconnect(true).SetKeepAlive(ka).SetDefaultPublishHandler(func(client mqtt.Client, msg mqtt.Message) {
     }).SetConnectionLostHandler(func(client mqtt.Client, reason error) {
