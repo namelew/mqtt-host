@@ -1,25 +1,25 @@
+package main
+
 import (
 	"fmt"
-	"log"
-	"time"
-	"strconv"
-	"os"
+	"io/ioutil"
 	"path/filepath"
+	"flag"
 )
 
 func main(){
 	var (
-		path = flag.String("path", "/mqtthost/commands.config", "open a file with the commands to the app")
+		path = flag.String("path", "commands.config", "open a file with the commands to the app")
 	)
 
 	flag.Parse()
 
 	extInput := filepath.Ext(*path)
 
-	if (extInput == '.config'){
-		file, _ := os.Open(*path)
-		file.Close()	
+	if (extInput == ".config"){
+		content, _ := ioutil.ReadFile(*path)
+		fmt.Print(string(content))	
 	}else{
-		fmt.print("Erro ao abrir arquivo")
+		fmt.Print("Erro ao abrir arquivo")
 	}
 }

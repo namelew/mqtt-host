@@ -36,6 +36,7 @@ func main(){
 
 	flag.Parse()
 
+	// formato terá que mudar
 	commands := []string {
 		*broker,
 		*topic,
