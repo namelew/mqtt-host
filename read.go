@@ -5,7 +5,12 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"flag"
+	"strings"
 )
+
+func RemoveIndex(s []string, index int) []string {
+    return append(s[:index], s[index+1:]...)
+}
 
 func main(){
 	var (
@@ -18,7 +23,26 @@ func main(){
 
 	if (extInput == ".config"){
 		content, _ := ioutil.ReadFile(*path)
-		fmt.Print(string(content))	
+		data := strings.Split(string(content), "\n")
+		oq_commands := ""
+		
+		for i:=0; i < len(data); i++{
+			if strings.Contains(data[i], "//"){
+				data = RemoveIndex(data, i)
+			}
+		}
+
+		for i:=0; i < len(data); i++{
+			if strings.Contains(data[i], "@"){
+				oq_commands += data[i] + " "
+				data = RemoveIndex(data, i)
+				i -= 1 
+			}
+		}
+		commands := strings.Join(data," ")
+		fmt.Println(commands)
+		fmt.Println(oq_commands)
+
 	}else{
 		fmt.Print("Erro ao abrir arquivo")
 	}
